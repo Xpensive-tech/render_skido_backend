@@ -79,6 +79,46 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// ✅ Define Stream Schema & Model
+const StreamSchema = new mongoose.Schema({
+    song_id: { type: String, required: true, unique: true },
+    streams: { type: Number, default: 1 },
+});
+
+const Stream = mongoose.model('Stream', StreamSchema);
+
+// ✅ API Route: Update Stream Count
+app.post('/api/update-stream', async (req, res) => {
+    const { song_id } = req.body;
+
+    try {
+        let stream = await Stream.findOne({ song_id });
+
+        if (stream) {
+            stream.streams += 1;  // Increase stream count
+            await stream.save();
+        } else {
+            stream = await Stream.create({ song_id, streams: 1 });
+        }
+
+        res.json({ success: true, message: 'Stream updated', stream });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ✅ API Route: Fetch All Streams
+app.get('/api/get-streams', async (req, res) => {
+    try {
+        const streams = await Stream.find();
+        res.json({ success: true, streams });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+
+
 // Music API
 // const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 // const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
