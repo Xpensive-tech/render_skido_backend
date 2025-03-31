@@ -99,6 +99,7 @@ app.post('/api/update-stream', async (req, res) => {
             await stream.save();
         } else {
             stream = await Stream.create({ song_id, streams: 1 });
+          await stream.save()
         }
 
         res.json({ success: true, message: 'Stream updated', stream });
